@@ -30,5 +30,5 @@
 /*
  * Hooks
  */
-$GLOBALS['TL_HOOKS']['generatePage'][] = array('extendedSeo', 'generatePage');
+$GLOBALS['TL_HOOKS']['generatePage'][] = array('ExtendedSeo', 'generatePage');
 ?>

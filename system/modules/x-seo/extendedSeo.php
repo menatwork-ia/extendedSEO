@@ -27,7 +27,7 @@
  * @filesource
  */
 
-class extendedSeo extends Backend
+class ExtendedSeo extends Backend
 {
 
     public function generatePage(Database_Result $objPage, Database_Result $objLayout, PageRegular $objPageRegular)
@@ -39,11 +39,15 @@ class extendedSeo extends Backend
         // Keywords ------------------------------------------------------------                
         $arrSource = explode(",", $GLOBALS['TL_KEYWORDS']);
         if (!is_array($arrSource))
+		{
             $arrSource = array();
-
+		}
+		
         $arrNew = explode(",", $arrRootPage[0]["keywords"]);
         if (!is_array($arrNew))
+		{
             $arrNew = array();
+		}
         
         $arrSource = array_merge($arrSource, $arrNew);
         $arrSource = array_unique($arrSource);
