@@ -1,4 +1,7 @@
-<?php if (!defined('TL_ROOT')) die('You cannot access this file directly!');
+<?php
+
+if (!defined('TL_ROOT'))
+    die('You cannot access this file directly!');
 
 /**
  * Contao Open Source CMS
@@ -26,63 +29,91 @@
  * @license    GNU/LGPL
  * @filesource
  */
-
 class ExtendedSeo extends Backend
 {
+    const KEYWORDS = 1;
+    const DESCRIPTION = 2;
 
     public function generatePage(Database_Result $objPage, Database_Result $objLayout, PageRegular $objPageRegular)
     {
         // Page Informations ---------------------------------------------------
         global $objPage;
-        $arrRootPage = $this->recursivePage($objPage->pid);
- 
+        $strKeywords = $this->recursivePage($objPage->id, self::KEYWORDS);
+        $strDescription = $this->recursivePage($objPage->id, self::DESCRIPTION);
+
         // Keywords ------------------------------------------------------------                
         $arrSource = explode(",", $GLOBALS['TL_KEYWORDS']);
         if (!is_array($arrSource))
-		{
+        {
             $arrSource = array();
-		}
-		
-        $arrNew = explode(",", $arrRootPage[0]["keywords"]);
+        }
+
+        $arrNew = trimsplit(",", $strKeywords);
         if (!is_array($arrNew))
-		{
+        {
             $arrNew = array();
-		}
-        
+        }
+
         $arrSource = array_merge($arrSource, $arrNew);
         $arrSource = array_unique($arrSource);
-        
+
         foreach ($arrSource as $key => $value)
         {
-            if($value == "")
-                unset ($arrSource[$key]);
+            if ($value == "")
+                unset($arrSource[$key]);
         }
-        
+
         $GLOBALS['TL_KEYWORDS'] = implode(",", $arrSource);
-        
+
         // Description ---------------------------------------------------------
-        if($objPage->description == "" || $objPage->description == null)
+        if ($objPage->description == "" || $objPage->description == null)
         {
-            $objPage->description = $arrRootPage[0]["description"];
+            $objPage->description = $strDescription;
         }
     }
 
-    private function recursivePage($pid)
+    private function recursivePage($pid, $intSearch)
     {
         $arrPage = $this->Database
                 ->prepare("SELECT * FROM tl_page WHERE id=?")
                 ->execute($pid)
                 ->fetchAllAssoc();
 
-        if ($arrPage[0]["pid"] == 0)
+        switch ($intSearch)
         {
-            return $arrPage;
-        }
-        else
-        {
-            return $this->recursivePage($arrPage[0]["pid"]);
+            case self::KEYWORDS:
+                // If we have found the rootpage, return it
+                if ($arrPage[0]["pid"] == 0)
+                    return $arrPage[0]["keywords"];
+
+                // If we have found some informations return it or search on next part
+                if (strlen($arrPage[0]["keywords"]) != 0)
+                    return $arrPage[0]["keywords"];
+                else
+                    return $this->recursivePage($arrPage[0]["pid"], $intSearch);
+
+                break;
+
+            case self::DESCRIPTION:
+                // If we have found the rootpage, return it
+                if ($arrPage[0]["pid"] == 0)
+                    return $arrPage[0]["description"];
+
+                // If we have found some informations return it or search on next part
+                if (strlen($arrPage[0]["description"]) != 0)
+                    return $arrPage[0]["description"];
+                else
+                    return $this->recursivePage($arrPage[0]["pid"], $intSearch);
+
+                break;
+
+            default:
+                // Default return nothing
+                return "";
+                break;
         }
     }
 
 }
+
 ?>

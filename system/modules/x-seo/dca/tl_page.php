@@ -1,4 +1,7 @@
-<?php if (!defined('TL_ROOT')) die('You cannot access this file directly!');
+<?php
+
+if (!defined('TL_ROOT'))
+    die('You cannot access this file directly!');
 
 /**
  * Contao Open Source CMS
@@ -26,24 +29,48 @@
  * @license    GNU/LGPL
  * @filesource
  */
- 
 $this->loadLanguageFile('tl_article');
 
 /**
  * Palettes
  */
-$arrPalettes = explode(";", $GLOBALS['TL_DCA']['tl_page']['palettes']['root']);
-
-foreach ($arrPalettes as $key => $value)
+// Foreach pallet in tl_page
+foreach ($GLOBALS['TL_DCA']['tl_page']['palettes'] as $keyPalette => $valuePalette)
 {
-    if (stripos($value, "{meta_legend}") !== false)
-    {
-        $arrPalettes[$key] = str_replace("pageTitle", "pageTitle,description,keywords", $value);
-        break;
-    }
-}
+    // Skip if we have a array or the palttes for subselections
+    if (is_array($valuePalette) || $keyPalette == "__selector__")
+        continue;
 
-$GLOBALS['TL_DCA']['tl_page']['palettes']['root'] = implode(";", $arrPalettes);
+    // Explode entries
+    $arrEntries = explode(";", $valuePalette);
+
+    // Search for "{meta_legend}" and insert ne fields
+    foreach ($arrEntries as $keyEntry => $valueEntry)
+    {
+        if (stripos($valueEntry, "{meta_legend}") !== false)
+        {
+            $arrEntry = trimsplit(",", $valueEntry);
+
+            if (($mixSearch = array_search("description", $arrEntry)) !== FALSE)
+            {
+                unset($arrEntry[$mixSearch]);
+            }
+
+            if (($mixSearch = array_search("description", $arrEntry)) !== FALSE)
+            {
+                unset($arrEntry[$mixSearch]);
+            }
+
+            $arrEntry = array_merge(array_slice($arrEntry, 0, 2), array("description", "keywords"), array_slice($arrEntry, 2, count($arrEntry) - 2));
+
+            $valueEntry = implode(",", $arrEntry);
+            $arrEntries[$keyEntry] = $valueEntry;
+        }
+    }
+
+    // Write new entry back in the palette
+    $GLOBALS['TL_DCA']['tl_page']['palettes'][$keyPalette] = implode(";", $arrEntries);
+}
 
 /**
  * Fields
@@ -54,5 +81,4 @@ $GLOBALS['TL_DCA']['tl_page']['fields']['keywords'] = array(
     'inputType' => 'textarea',
     'eval' => array('style' => 'height:60px;')
 );
-
 ?>
