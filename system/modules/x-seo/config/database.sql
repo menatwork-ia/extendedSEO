@@ -12,6 +12,7 @@
 -- 
 
 CREATE TABLE `tl_page` (
+  `rootTitle` varchar(255) NOT NULL default '',
   `keywords` text NULL
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 

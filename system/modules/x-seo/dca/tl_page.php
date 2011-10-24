@@ -1,7 +1,4 @@
-<?php
-
-if (!defined('TL_ROOT'))
-    die('You cannot access this file directly!');
+<?php if (!defined('TL_ROOT')) die('You cannot access this file directly!');
 
 /**
  * Contao Open Source CMS
@@ -29,22 +26,25 @@ if (!defined('TL_ROOT'))
  * @license    GNU/LGPL
  * @filesource
  */
+
 $this->loadLanguageFile('tl_article');
+$this->loadLanguageFile('tl_settings');
 
 /**
  * Palettes
  */
-// Foreach pallet in tl_page
 foreach ($GLOBALS['TL_DCA']['tl_page']['palettes'] as $keyPalette => $valuePalette)
 {
-    // Skip if we have a array or the palttes for subselections
+    // Skip if we have a array or the palettes for subselections
     if (is_array($valuePalette) || $keyPalette == "__selector__")
+    {
         continue;
+    }
 
     // Explode entries
     $arrEntries = explode(";", $valuePalette);
 
-    // Search for "{meta_legend}" and insert ne fields
+    // Search for "{meta_legend}" and insert the fields
     foreach ($arrEntries as $keyEntry => $valueEntry)
     {
         if (stripos($valueEntry, "{meta_legend}") !== false)
@@ -72,6 +72,13 @@ foreach ($GLOBALS['TL_DCA']['tl_page']['palettes'] as $keyPalette => $valuePalet
     $GLOBALS['TL_DCA']['tl_page']['palettes'][$keyPalette] = implode(";", $arrEntries);
 }
 
+foreach ($GLOBALS['TL_DCA']['tl_page']['palettes'] as $key => $row)
+{
+    if ($key == '__selector__' || $key == 'root') continue;
+    if (!stristr($row, 'pageTitle')) continue;
+    $GLOBALS['TL_DCA']['tl_page']['palettes'][$key] = str_replace('pageTitle', 'pageTitle,rootTitle', $GLOBALS['TL_DCA']['tl_page']['palettes'][$key]);
+}
+
 /**
  * Fields
  */
@@ -81,4 +88,12 @@ $GLOBALS['TL_DCA']['tl_page']['fields']['keywords'] = array(
     'inputType' => 'textarea',
     'eval' => array('style' => 'height:60px;')
 );
+
+$GLOBALS['TL_DCA']['tl_page']['fields']['rootTitle'] = array(
+    'label' => &$GLOBALS['TL_LANG']['tl_settings']['websiteTitle'],
+    'exclude' => true,
+    'inputType' => 'text',
+    'eval' => array('tl_class' => 'long')
+);
+
 ?>

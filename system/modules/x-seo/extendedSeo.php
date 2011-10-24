@@ -1,7 +1,4 @@
-<?php
-
-if (!defined('TL_ROOT'))
-    die('You cannot access this file directly!');
+<?php if (!defined('TL_ROOT')) die('You cannot access this file directly!');
 
 /**
  * Contao Open Source CMS
@@ -29,10 +26,12 @@ if (!defined('TL_ROOT'))
  * @license    GNU/LGPL
  * @filesource
  */
+
 class ExtendedSeo extends Backend
 {
     const KEYWORDS = 1;
     const DESCRIPTION = 2;
+    const ROOTTITLE = 3;
 
     public function generatePage(Database_Result $objPage, Database_Result $objLayout, PageRegular $objPageRegular)
     {
@@ -40,6 +39,7 @@ class ExtendedSeo extends Backend
         global $objPage;
         $strKeywords = $this->recursivePage($objPage->id, self::KEYWORDS);
         $strDescription = $this->recursivePage($objPage->id, self::DESCRIPTION);
+        $strTitle = $this->recursivePage($objPage->id, self::ROOTTITLE);
 
         // Keywords ------------------------------------------------------------                
         $arrSource = explode(",", $GLOBALS['TL_KEYWORDS']);
@@ -60,7 +60,9 @@ class ExtendedSeo extends Backend
         foreach ($arrSource as $key => $value)
         {
             if ($value == "")
+            {
                 unset($arrSource[$key]);
+            }
         }
 
         $GLOBALS['TL_KEYWORDS'] = implode(",", $arrSource);
@@ -70,6 +72,13 @@ class ExtendedSeo extends Backend
         {
             $objPage->description = $strDescription;
         }
+        
+        // Root title ---------------------------------------------------------
+        if ($strTitle != "")
+        {
+            $objPage->rootTitle = $strTitle;
+        }
+        
     }
 
     private function recursivePage($pid, $intSearch)
@@ -84,28 +93,59 @@ class ExtendedSeo extends Backend
             case self::KEYWORDS:
                 // If we have found the rootpage, return it
                 if ($arrPage[0]["pid"] == 0)
+                {
                     return $arrPage[0]["keywords"];
+                }
 
                 // If we have found some informations return it or search on next part
                 if (strlen($arrPage[0]["keywords"]) != 0)
+                {
                     return $arrPage[0]["keywords"];
+                }
                 else
+                {
                     return $this->recursivePage($arrPage[0]["pid"], $intSearch);
+                }
 
                 break;
 
             case self::DESCRIPTION:
                 // If we have found the rootpage, return it
                 if ($arrPage[0]["pid"] == 0)
+                {
                     return $arrPage[0]["description"];
+                }
 
                 // If we have found some informations return it or search on next part
                 if (strlen($arrPage[0]["description"]) != 0)
+                {
                     return $arrPage[0]["description"];
+                }
                 else
+                {
                     return $this->recursivePage($arrPage[0]["pid"], $intSearch);
+                }
 
                 break;
+            
+            case self::ROOTTITLE:
+                // If we have found the rootpage, return it
+                if ($arrPage[0]["pid"] == 0)
+                {
+                    return '';
+                }
+
+                // If we have found some informations return it or search on next part
+                if (strlen($arrPage[0]["rootTitle"]) != 0)
+                {
+                    return $arrPage[0]["rootTitle"];
+                }
+                else
+                {
+                    return $this->recursivePage($arrPage[0]["pid"], $intSearch);
+                }
+
+                break;                
 
             default:
                 // Default return nothing
