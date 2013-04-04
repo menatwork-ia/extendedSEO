@@ -97,7 +97,6 @@ class ExtendedSeo extends Backend
 				{
 					return $arrPage[0]["description"];
 				}
-
 				// If we have found some informations return it or search on next part
 				if (strlen($arrPage[0]["description"]) != 0)
 				{
