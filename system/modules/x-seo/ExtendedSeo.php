@@ -15,7 +15,7 @@ class ExtendedSeo extends Backend
 	const DESCRIPTION = 2;
 	const ROOTTITLE = 3;
 
-	public function generatePage(Database_Result $objPage, Database_Result $objLayout, PageRegular $objPageRegular)
+	public function generatePage($objPage, $objLayout, $objPageRegular)
 	{
 		// Page Informations ---------------------------------------------------
 		global $objPage;
