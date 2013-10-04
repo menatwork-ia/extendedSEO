@@ -32,7 +32,7 @@
 	"extra":{
 		"contao":{
 			"sources":{
-				"system/modules/extendedSEO":"system/modules/extendedSEO"
+				"system/modules/x-seo":"system/modules/x-seo"
 			}
 		}
 	}
