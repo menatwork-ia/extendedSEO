@@ -1,0 +1,38 @@
+{
+	"name":"menatwork/extendedseo",
+	"description":"Add keywords and description at the root page",
+	"keywords":["seo", "description", "keywords"],
+	"type":"contao-module",
+	"license":"LGPL-3.0+",
+	"authors":[
+		{
+			"name":"Andreas Isaak",
+			"email":"contao@men-at-work.de",
+			"homepage":"http://www.men-at-work.de",
+			"role":"Developer"
+		},
+		{
+			"name":"Stefan Heimes",
+			"email":"contao@men-at-work.de",
+			"homepage":"http://www.men-at-work.de",
+			"role":"Developer"
+		}
+	],
+	"require":{
+		"php":">=5.3",
+		"contao/core":">=2.11,<4"
+	},
+	"autoload":{
+		"classmap":["system/"]
+	},
+	"replace":{
+		"contao-legacy/extendedseo":"*"
+	},
+	"extra":{
+		"contao":{
+			"sources":{
+				"system/modules/extendedSEO":"system/modules/extendedSEO"
+			}
+		}
+	}
+}
