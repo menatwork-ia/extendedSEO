@@ -9,7 +9,7 @@
  * @filesource
  */
 
-class ExtendedSeo extends Backend
+class ExtendedSeo extends Frontend
 {
 	const KEYWORDS = 1;
 	const DESCRIPTION = 2;
