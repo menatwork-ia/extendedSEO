@@ -58,7 +58,7 @@ foreach ($GLOBALS['TL_DCA']['tl_page']['palettes'] as $key => $row)
 {
 	if ($key == '__selector__' || $key == 'root') continue;
 	if (!stristr($row, 'pageTitle')) continue;
-	$GLOBALS['TL_DCA']['tl_page']['palettes'][$key] = str_replace('pageTitle', 'pageTitle,rootTitle', $GLOBALS['TL_DCA']['tl_page']['palettes'][$key]);
+	$GLOBALS['TL_DCA']['tl_page']['palettes'][$key] = str_replace('pageTitle', 'pageTitle,xseo_rootTitle', $GLOBALS['TL_DCA']['tl_page']['palettes'][$key]);
 }
 
 /**
@@ -71,7 +71,7 @@ $GLOBALS['TL_DCA']['tl_page']['fields']['keywords'] = array(
 	'eval'           => array('style' => 'height:60px;')
 );
 
-$GLOBALS['TL_DCA']['tl_page']['fields']['rootTitle'] = array(
+$GLOBALS['TL_DCA']['tl_page']['fields']['xseo_rootTitle'] = array(
 	'label'          => &$GLOBALS['TL_LANG']['tl_settings']['websiteTitle'],
 	'exclude'        => true,
 	'inputType'      => 'text',

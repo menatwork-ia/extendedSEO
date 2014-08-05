@@ -155,7 +155,7 @@ class ExtendedSeo
 				break;
 
 			case self::ROOT_TITLE:
-				$strFieldWithData = 'rootTitle';
+				$strFieldWithData = 'xseo_rootTitle';
 				break;
 
 			case self::ROOT_PAGE_TITLE:
@@ -170,9 +170,16 @@ class ExtendedSeo
 		// If we have found the rootpage, return it
 		if ($objPage->pid == 0)
 		{
-			return $objPage->$strFieldWithData;
+			if ($intSearch == self::ROOT_TITLE)
+			{
+				return $objPage->rootTitle;
+			}
+			else
+			{
+				return $objPage->$strFieldWithData;
+			}
 		}
-		// If we have found some informations return it or search on next part
+		// If we have found some information return it or search on next part
 		elseif (strlen($objPage->$strFieldWithData) != 0)
 		{
 			return $objPage->$strFieldWithData;
