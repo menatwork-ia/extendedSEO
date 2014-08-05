@@ -49,7 +49,7 @@ class ExtendedSeoRunOnce
                     ->execute($arrRow['rootTitle'], $arrRow['id']);
             }
 
-            \System::log('Update ExtendedSeo.', __CLASS__ . ' || ' . __FUNCTION__, TL_ERROR);
+            \System::log('Update ExtendedSeo.', __CLASS__ . ' || ' . __FUNCTION__, TL_GENERAL);
         }
         catch (Exception $e)
         {
