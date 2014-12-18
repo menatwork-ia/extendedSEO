@@ -10,7 +10,7 @@
  */
 
 /**
- * Language2file runonce
+ * ExtendedSeo runonce updater
  */
 class ExtendedSeoRunOnce
 {
@@ -58,5 +58,5 @@ class ExtendedSeoRunOnce
     }
 }
 
-$objL2fRunOnce = new ExtendedSeoRunOnce();
-$objL2fRunOnce->run();
+$objRunOnce = new ExtendedSeoRunOnce();
+$objRunOnce->run();
