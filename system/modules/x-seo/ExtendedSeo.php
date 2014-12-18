@@ -10,10 +10,19 @@
  */
 class ExtendedSeo
 {
+	/**
+	 * Const. for the fields.
+	 */
 	const KEYWORDS        = 1;
 	const DESCRIPTION     = 2;
 	const ROOT_TITLE      = 3;
-	const ROOT_PAGE_TITLE = 4;
+
+	/**
+	 * The cache for the pages.
+	 *
+	 * @var array
+	 */
+	protected $arrPageCache = array();
 
 	/**
 	 * Callback from contao.
@@ -24,18 +33,19 @@ class ExtendedSeo
 	 */
 	public function generatePage($objPage, $objLayout, $objPageRegular)
 	{
+		// Get the current page.
 		global $objPage;
+
+		// Add the current page to the cache.
+		$this->arrPageCache[ $objPage->id ] = $objPage;
 
 		// Try to get the data.
 		$strKeywords    = $this->recursivePage($objPage->id, self::KEYWORDS);
 		$strDescription = $this->recursivePage($objPage->id, self::DESCRIPTION);
 
-		// Get the title, first try the roottitle field after this the rootpagetitle.
+		// Get the title for the page. Try for each normal page the xseo_rootTitle.
+		// If we reached the rootPage use the pageTitle if not the follow the contao way.
 		$strTitle = $this->recursivePage($objPage->id, self::ROOT_TITLE);
-		if (empty($strTitle))
-		{
-			$strTitle = $this->recursivePage($objPage->id, self::ROOT_PAGE_TITLE);
-		}
 
 		// Update the page details.
 		$this->updateKeywords($strKeywords);
@@ -64,7 +74,7 @@ class ExtendedSeo
 		}
 
 		// Split all new keywords.
-		$arrNew = trimsplit(",", $strKeywords);
+		$arrNew = trimsplit(',', $strKeywords);
 		if (!is_array($arrNew))
 		{
 			$arrNew = array();
@@ -73,10 +83,10 @@ class ExtendedSeo
 		// Merge, unique and cleanup.
 		$arrSource = array_merge($arrSource, $arrNew);
 		$arrSource = array_unique($arrSource);
-		array_filter($arrSource, "strlen");
+		array_filter($arrSource, 'strlen');
 
 		// Set the keywords.
-		$GLOBALS['TL_KEYWORDS'] = implode(",", $arrSource);
+		$GLOBALS['TL_KEYWORDS'] = implode(',', $arrSource);
 	}
 
 	/**
@@ -122,7 +132,29 @@ class ExtendedSeo
 	}
 
 	/**
-	 * Scann the page tree for information.
+	 * Resolve page details and add it to the cache.
+	 *
+	 * @param $intId
+	 *
+	 * @return mixed
+	 */
+	protected function getPageDetails($intId)
+	{
+		// Check if we have the data in the cache.
+		if (!isset($this->arrPageCache[ $intId ]))
+		{
+			// Get the page by the id.
+			$objPage = \Contao\PageModel::findWithDetails($intId);
+
+			// Add to the cache.
+			$this->arrPageCache[ $intId ] = $objPage;
+		}
+
+		return $this->arrPageCache[ $intId ];
+	}
+
+	/**
+	 * Scan the page tree for information.
 	 *
 	 * @param int $intId     The id for the start page.
 	 *
@@ -132,10 +164,8 @@ class ExtendedSeo
 	 */
 	private function recursivePage($intId, $intSearch)
 	{
-		// Get the page by the id.
-		$objPage = \Database::getInstance()
-			->prepare('SELECT * FROM tl_page WHERE id=?')
-			->execute($intId);
+		// Get the page details.
+		$objPage = $this->getPageDetails($intId);
 
 		// If we have no page return.
 		if ($objPage == null)
@@ -158,38 +188,41 @@ class ExtendedSeo
 				$strFieldWithData = 'xseo_rootTitle';
 				break;
 
-			case self::ROOT_PAGE_TITLE:
-				$strFieldWithData = 'pageTitle';
-				break;
-
 			// Default return nothing
 			default:
 				return null;
 		}
 
-		// If we have found the rootpage, return it
+		// If we reached the rootPage ...
 		if ($objPage->pid == 0)
 		{
+			// and the title is requested, return the normal one ...
 			if ($intSearch == self::ROOT_TITLE)
 			{
-				return $objPage->rootTitle;
+				return $objPage->pageTitle;
 			}
-			else
+			// else all other data ...
+			elseif (strlen($objPage->$strFieldWithData) != 0)
 			{
 				return $objPage->$strFieldWithData;
 			}
+			// or null if we have not data.
+			else
+			{
+				return null;
+			}
 		}
-		// If we have found some information return it or search on next part
+		// Get the data if we have some one ...
 		elseif (strlen($objPage->$strFieldWithData) != 0)
 		{
 			return $objPage->$strFieldWithData;
 		}
-		// If we have a pid try the next page.
+		// or ask the parent for more information.
 		elseif (!empty($objPage->pid))
 		{
 			return $this->recursivePage($objPage->pid, $intSearch);
 		}
-		// Else return nothing.
+		// At this point give up.
 		else
 		{
 			return null;
